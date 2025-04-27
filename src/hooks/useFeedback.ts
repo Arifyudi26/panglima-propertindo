@@ -26,7 +26,6 @@ const fetchCategories = async (): Promise<Category[]> => {
 
 // Fetch subcategories based on category ID
 const fetchSubCategories = async (id_category: number): Promise<Category[]> => {
-  // Perhatikan type array
   try {
     const response = await Instance.get(
       `/feedback-sub-category?id_category=${id_category}`
@@ -60,12 +59,11 @@ export const useFeedback = () => {
   };
 };
 
-// Untuk query subcategories, kita tetap memerlukan id_category, tetapi kita bisa memanggil query ini terpisah di halaman Add.
 export const useSubCategories = (id_category: number) => {
   const subCategoriesQuery = useQuery({
     queryKey: ["subCategories", id_category],
     queryFn: () => fetchSubCategories(id_category),
-    enabled: !!id_category, // Pastikan query hanya dijalankan jika id_category ada
+    enabled: !!id_category,
   });
 
   return subCategoriesQuery;
