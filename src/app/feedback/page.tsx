@@ -2,12 +2,13 @@
 
 import { DataTable } from "@/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import React from "react";
+import React, { useState } from "react";
 import PageTitle from "@/components/PageTitle";
 import { useFeedback } from "@/hooks/useFeedback";
 import { cn } from "@/lib/utils";
 import { Feedback } from "@/types";
-import Link from "next/link"; // Impor Link dari Next.js
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
 
 type Props = {};
 
@@ -55,12 +56,24 @@ const columns: ColumnDef<Feedback>[] = [
 
 export default function FeedbackPage({}: Props) {
   const { feedbackData } = useFeedback();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     data: feedback,
     isLoading: feedbackLoading,
     error: feedbackError,
   } = feedbackData;
+
+  const filteredFeedback = feedback?.filter((item) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      item.category.toLowerCase().includes(searchLower) ||
+      item.sub_category.toLowerCase().includes(searchLower) ||
+      item.unit.toLowerCase().includes(searchLower) ||
+      item.status.toLowerCase().includes(searchLower) ||
+      item.keluhan.toLowerCase().includes(searchLower)
+    );
+  });
 
   if (feedbackLoading) return <p>Loading...</p>;
   if (feedbackError) return <p>Terjadi kesalahan saat mengambil data.</p>;
@@ -71,13 +84,22 @@ export default function FeedbackPage({}: Props) {
     <div className="flex flex-col gap-5 w-full">
       <PageTitle title="Feedbacks" />
 
-      <Link href="/feedback/add">
-        <button className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-700 transition">
-          Add Feedback
-        </button>
-      </Link>
+      <div className="flex items-center gap-4 mb-4">
+        <Input
+          type="text"
+          placeholder="Search feedback..."
+          className="border p-2 rounded-md w-full"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Link href="/feedback/add">
+          <button className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-700 transition">
+            Add
+          </button>
+        </Link>
+      </div>
 
-      <DataTable columns={columns} data={feedback || []} />
+      <DataTable columns={columns} data={filteredFeedback || []} />
     </div>
   );
 }
